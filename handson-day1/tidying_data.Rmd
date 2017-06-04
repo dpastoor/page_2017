@@ -1,0 +1,41 @@
+---
+title: "data tidying hands-on"
+author: "Devin"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+---
+
+```{r}
+library(knitr)
+library(tidyverse)
+library(PKPDmisc)
+```
+
+## DATA IMPORT
+
+```{r}
+ebe_cov <- read_csv("../data/ebe_cov.csv")
+```
+
+Remove all the columns with ETAS and name dataframe `covs`
+
+
+Find all columns with an NA value, and the associated ID
+
+Impute the NA values using the mean for any continous variable, and largest group for categorical
+
+## data checkout for all covariates
+
+Set all categorical covariates to factors with appropriate labels
+
+Plot a scatter plot of all continuous covariates versus ID to check for visual outliers
+
+Plot a violin/box plot of all continuous covariates versus SEX to check for visual trends 
+
+Plot a violin/box plot of all continuous covariates versus all categorical covariates to check for visual trends 
+
+```{r}
+devtools::session_info()
+```
+

@@ -1,0 +1,70 @@
+# Introduction to ggplot2
+
+```{r}
+library(PKPDmisc)
+library(PKPDdatasets)
+library(tidyverse)
+```
+
+## XY Plots
+1) For concentration-time plots filter only OCC 1 from dapa_IV_oral (in PKPDdatasets) for subsequent plotting
+```{r}
+data1 <- dapa_IV_oral %>% filter(OCC == 1)
+```
+
+2) Basic Concentration-Time plot (point and lines)
+
+
+3) make points/lines bigger
+
+
+4) add log transformation to y axis
+
+
+5) Add color by gender
+
+BONUS: rename labels legend and move legend to top right
+
+6) facet by race
+
+Note, with facetting by race, the color becomes unnessary extra visual stimulus so we remove the color.
+
+```{r}
+data1 %>% 
+    ggplot(aes(x = TIME, y = COBS, group = ID)) +
+    geom_point(size = 2.5) + geom_line(size = 1.1) +
+    scale_y_log10() +
+    theme(legend.position = c(1, 1), legend.justification = c(1, 1)) +
+    facet_wrap(~GENDER)
+```
+
+BONUS: rename facet strips by name
+
+There are a couple ways of doing this:
+
+  a) on the fly mutate the the values to labels
+  
+  b) Use facet_grid with the labeller argument
+
+
+9) color by weight
+
+BONUS: rename axes
+
+
+## Boxplots and Histograms
+
+* Histogram(s) of Weight with vertical line for median value
+
+```{r}
+# distinct is a dplyr verb - easiest way to subset data by the 
+# first row in some combination.
+sid_data <- data1 %>% 
+    distinct(ID, .keep_all = TRUE) # single row per id data
+```
+  
+
+```{r}
+devtools::session_info()
+```
+

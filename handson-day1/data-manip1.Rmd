@@ -1,0 +1,89 @@
+---
+title: "data manipulation hands-on"
+author: "YOURNAME"
+date: "`r Sys.Date()`"
+---
+
+```{r}
+library(knitr)
+library(tidyverse)
+library(PKPDmisc)
+```
+
+```{r}
+pk_data <- read_csv("../data/pk_data.csv")
+```
+
+```{r}
+head(pk_data)
+```
+
+
+## DATA MANIPULATION
+
+The goals of this section:
+
+* Use data manipulation tools to prepare the dataset for analysis
+
+
+1.  Rename "DV" column as "COBS"
+
+```{r}
+pk_data_cobs <- pk_data %>% rename(COBS = DV)
+```
+
+
+4. Perform the following tasks:
+
+a. Ensure that the following columns are numeric and not text: TIME, COBS, WT, AGE, AMT and DOSEs
+ 
+
+b. Create a new column called BQLFLAG which takes a value of 
+`0` if there is a numerical value in CObs and `1` if there is "BQL" in COBS.
+    
+c. Create a new column called "GENDER" where:
+    i. Female = 0
+    ii. Male = 1 
+d. Create a new column called RACEN where:
+    i. Caucasian = 0
+    ii. Asian = 1
+    iii. Black = 2
+    iv. Hispanic = 3
+
+f. Create a new column called "IDF" - unique subject ID as combination of formulation and ID 
+
+g. Remove the following columns
+    i. SEX
+    ii. RACE
+
+Save the above modifications as a new csv file
+
+## Descriptive Statistics
+
+1. show a summary for all demographic columns
+
+```{r}
+# single row per id
+sid_pk_data <- pk_data_cobs %>%
+  distinct(ID, .keep_all = TRUE) 
+
+```
+
+2. Count the number of subjects in each "Race" category
+
+3. calculate the min, mean, and max values for WT, AGE:
+    a. by Sex
+
+* there are also targeted verbs in the form `<verb>_at` that can specify what
+columns to act on, and which functions to run
+
+4. What is the Average numbers samples(observations) per individual in this dataset. 
+* Hint: make sure you are *only* counting samples, rows with AMT values are not considered observations.
+
+5. Calculate the Mean, 5th, and 95th percentile concentration at each time point for each formulation and dose level. hint: you can use `?quantile` to calculate various quantiles
+
+
+```{r}
+devtools::session_info()
+```
+

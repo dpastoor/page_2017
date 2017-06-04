@@ -1,0 +1,27 @@
+# Diagnostic Plots
+
+```{r}
+library(PKPDmisc)
+library(knitr)
+library(tidyverse)
+```
+
+* Create a Res vs Time function with loess fits for the central tendency and the spread (hint abs() is your friend for the spread). 
+    * Conditionally allow the loess curve of central tendency to appear, 
+    with a default of TRUE. 
+    * Users should be able to specify the residual column name.
+    * update your function to flag any point over some threshold as red, with a default of absolute difference of > 2.5 
+
+
+1) read in the csv dataset:
+
+* Residuals
+
+1) Plot CWRES vs time after dose (TAD)
+
+2) Plot WRES vs time after dose (TAD)
+
+```{r}
+devtools::session_info()
+```
+
