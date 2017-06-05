@@ -8,7 +8,7 @@ output:
 
 ```{r}
 library(knitr)
-library(tidyverse)
+library(tidyverse, warn.conflicts = FALSE)
 library(PKPDmisc)
 ```
 
@@ -20,18 +20,79 @@ ebe_cov <- read_csv("../data/ebe_cov.csv")
 
 Remove all the columns with ETAS and name dataframe `covs`
 
+```{r}
+covs <- ebe_cov %>% select(-contains("ETA"))
+head(covs)
+```
 
 Find all columns with an NA value, and the associated ID
 
+```{r}
+missings <- covs %>% group_by(ID) %>%
+  select_if(function(.x) {
+  any(is.na(.x))
+  }) %>% filter(is.na(BW) | is.na(SEX))
+missings
+```
+
+
 Impute the NA values using the mean for any continous variable, and largest group for categorical
+
+```{r}
+mean_bw <- covs %>% select(ID, BW, SEX) %>%
+  filter(!is.na(BW)) %>%
+  summarize(meanBW = mean(BW))
+
+counts <- covs %>% select(ID, BW, SEX) %>%
+  filter(!is.na(SEX)) %>% count(SEX) %>% arrange(desc(n))
+```
+
+```{r}
+covs_imputed <- covs %>% replace_na(list(
+  BW = mean_bw$meanBW, 
+  SEX = counts$SEX[[1]])) 
+```
+
 
 ## data checkout for all covariates
 
 Set all categorical covariates to factors with appropriate labels
 
+```{r}
+covs_imputed_fact <- covs_imputed %>%
+  mutate(SEX = factor(SEX, 
+                      levels = c(0, 1), 
+                      labels = c("FEMALE", "MALE")),
+         RACE = factor(RACE, levels = 0:2, labels = c("Asian", "Black", "Caucasian"))
+)
+```
+
+
 Plot a scatter plot of all continuous covariates versus ID to check for visual outliers
 
+```{r}
+g_cont_covs <- covs_imputed_fact %>% 
+  group_by(ID) %>% 
+  select_if(is.numeric) %>%
+  gather(contcov, cont_value, -ID) 
+
+g_cont_covs %>%
+  ggplot(aes(x = ID, y = cont_value)) + 
+  geom_point() +
+  facet_wrap(~contcov, scales = "free")
+```
+
+
 Plot a violin/box plot of all continuous covariates versus SEX to check for visual trends 
+
+```{r}
+covs_imputed_fact %>% gather(cont_covs, cont_values, BW:CRCL) %>%
+  ggplot(aes(x = SEX, y = cont_values)) +
+  geom_violin() + 
+  facet_wrap(~cont_covs, scales = "free") +
+  geom_jitter()
+```
+
 
 Plot a violin/box plot of all continuous covariates versus all categorical covariates to check for visual trends 
 
