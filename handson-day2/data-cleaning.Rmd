@@ -1,0 +1,23 @@
+# Data cleaning
+
+```{r}
+library(tidyverse)
+library(stringr)
+library(PKPDmisc)
+```
+
+```{r}
+dirty_data <- read_csv("../data/dirty_data.csv")
+```
+
+Reformat the data to be a tidy dataset - 'long' instead of wide,
+with time a numeric column of hours. Likewise, split up IDS into two
+columns, ID and SITE, where ID is just the numeric ID (eg ID001 --> 1)
+
+
+Calculate percent change from baseline for each ID at each site
+
+
+Which individual(s) had the largest positive and negative percent change from baseline?
+
+
