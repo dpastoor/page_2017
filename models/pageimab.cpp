@@ -1,6 +1,3 @@
-// details:
-// from anderson et al 2007 - Vancomycin pharmacokinetics in preterm neonates and 
-// the prediction of adult clearance.
 [PARAM] @annotated
 KA        : 1       : absorption rate constant (1/hr)
 CL        : 3.17    : Clearance (L/h)

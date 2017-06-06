@@ -3,6 +3,21 @@ title: "Probability of Target Attainment"
 output: html_document
 ---
 
+
+You have been tasked with providing a labeling recommendation for a new compound - `pageimab`.
+
+A population PK model has been developed and written in mrgsolve based on pharmacokinetics 
+explored in ascending dose studies looking at BID (every 12 hours) dosing ranging from 250-1500 mg, with 250, 500, and 1000 mg tablets available.
+
+
+Consultation with your clinical collegues has identified that the ideal therapeutic range for the steady-state
+trough values is between 8-25 mg/L. 
+
+Likewise, to maintain adequate safety and efficacy profile for commercial
+success, 80% of patients given a weight range of 40-125 kg must be within that window.
+
+Use mrgsolve to develop a dosing recommendation.
+
 ```{r}
 library(tidyverse)
 library(PKPDmisc)
@@ -12,6 +27,7 @@ library(mrgsolve)
 ```{r}
 pmod <- mread_cache("pageimab", "../models/")
 ```
+
 
 
 
