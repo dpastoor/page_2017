@@ -14,7 +14,7 @@ Consultation with your clinical collegues has identified that the ideal therapeu
 trough values is between 8-25 mg/L. 
 
 Likewise, to maintain adequate safety and efficacy profile for commercial
-success, 85% of patients given a weight range of 40-125 kg must be within that window.
+success, 85% of patients given a weight range of 40-140 kg must be within that window.
 
 Use mrgsolve to develop a dosing recommendation.
 
