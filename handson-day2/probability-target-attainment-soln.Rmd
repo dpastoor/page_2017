@@ -1,0 +1,116 @@
+---
+title: "Probability of Target Attainment"
+output: html_document
+---
+
+
+You have been tasked with providing a labeling recommendation for a new compound - `pageimab`.
+
+A population PK model has been developed and written in mrgsolve based on pharmacokinetics 
+explored in ascending dose studies looking at BID (every 12 hours) dosing ranging from 250-1500 mg, with 250, 500, and 1000 mg tablets available.
+
+
+Consultation with your clinical collegues has identified that the ideal therapeutic range for the steady-state
+trough values is between 8-25 mg/L. 
+
+Likewise, to maintain adequate safety and efficacy profile for commercial
+success, 85% of patients given a weight range of 40-140 kg must be within that window.
+
+Use mrgsolve to develop a dosing recommendation.
+
+```{r}
+library(tidyverse)
+library(PKPDmisc)
+library(mrgsolve)
+```
+
+```{r}
+pmod <- mread_cache("pageimab", "../models/")
+```
+
+```{r}
+pmod %>% see
+```
+
+```{r}
+ids <- data_frame(
+    ID = 1:1000,
+    time = 0,
+    cmt = 1,
+    ss = 1,
+    ii = 12,
+    evid = 1
+  ) %>%
+  mutate(
+    WT = round(runif(n(), 40, 140), 1)
+  )
+```
+
+## Single dose attempt
+
+```{r}
+.x <- 250
+results <- map_df(c(seq(250, 1500, 250)), function(.x) {
+  ids_amt <- ids %>%
+    mutate(amt = .x)
+  sim_out <- pmod %>%
+    data_set(ids_amt) %>%
+    mrgsim() %>% as_data_frame
+  
+  props <- sim_out %>%
+    filter(time == 12) %>%
+  mutate(
+    in_window = set_bins(CP, breaks = c(8, 25)),
+    total = n()
+    ) %>%
+  group_by(in_window) %>%
+  summarize(
+    prop = round(n() / unique(total), 3),
+    percent = prop * 100
+  )
+  return(props %>% mutate(dose = .x)) 
+})
+
+results %>% filter(in_window == 1)
+```
+
+After exploring single doses, no dose was able to successfully 
+
+```{r}
+
+
+ids_amt <- ids %>%
+  mutate(
+    amt = ifelse(WT > 90, 1250, 750)
+  )
+
+sim_out <- pmod %>%
+data_set(ids_amt) %>%
+mrgsim() %>% as_data_frame
+
+props <- sim_out %>%
+  filter(time == 12) %>%
+  mutate(
+    is_obese = ifelse(WT > 95, 1, 0),
+    in_window = set_bins(CP, breaks = c(8, 25))
+  ) %>%
+  group_by(is_obese) %>%
+  mutate(total = n()) %>%
+  group_by(in_window, is_obese) %>%
+  summarize(
+    prop = round(n() / unique(total), 3),
+    percent = prop * 100
+  )
+
+props %>% arrange(is_obese)
+
+props %>%
+  filter(in_window == 1)
+
+props %>% arrange(is_obese)
+
+```
+
+
+
+
