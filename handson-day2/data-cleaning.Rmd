@@ -14,10 +14,39 @@ Reformat the data to be a tidy dataset - 'long' instead of wide,
 with time a numeric column of hours. Likewise, split up IDS into two
 columns, ID and SITE, where ID is just the numeric ID (eg ID001 --> 1)
 
+```{r}
+clean_data <- dirty_data %>%
+  gather(TIME, DV, -IDS) %>%
+  separate(IDS, into = c("ID", "SITE"), sep = "_") %>%
+  mutate(ID = as_numeric(str_extract(ID, "\\d+")),
+         TIME = ifelse(TIME == "30 min", 0.5, TIME),
+         TIME = as_numeric(str_replace(TIME, "hrs", ""))) %>%
+  arrange(SITE, ID, TIME)
+```
 
 Calculate percent change from baseline for each ID at each site
+
+```{r}
+clean_data %>% distinct(ID, SITE, .keep_all = TRUE) %>%
+  filter(is.na(DV) | TIME > 0)
+```
+
+```{r}
+clean_data <- clean_data %>%
+  group_by(ID, SITE) %>%
+  mutate(IMPUTED = ifelse(is.na(DV), 1, 0)) %>%
+  fill(DV, .direction = "up") %>%
+  mutate(pCFB = round((DV - first(DV))/DV, 4)*100)
+```
 
 
 Which individual(s) had the largest positive and negative percent change from baseline?
 
+
+```{r}
+clean_data %>%
+  ungroup %>%
+  filter(pCFB == max(pCFB) | pCFB == min(pCFB)) %>%
+  select(ID)  %>% unique
+```
 
