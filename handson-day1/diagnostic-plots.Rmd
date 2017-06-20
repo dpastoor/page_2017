@@ -4,6 +4,7 @@
 library(PKPDmisc)
 library(knitr)
 library(tidyverse)
+library(rlang)
 ```
 
 * Create a Res vs Time function with loess fits for the central tendency and the spread (hint abs() is your friend for the spread). 
@@ -15,11 +16,61 @@ library(tidyverse)
 
 1) read in the csv dataset:
 
+
+```{r}
+resid <- read_csv("../data/Residuals.csv")
+```
+
 * Residuals
 
 1) Plot CWRES vs time after dose (TAD)
 
+```{r}
+resid %>%
+  mutate(HIGHRES__ = factor(ifelse(abs(CWRES) > 2.5, 1, 0))) %>%
+  ggplot(aes(x = TAD, y = CWRES)) +
+  geom_point(aes(color = HIGHRES__)) +
+  scale_color_manual(values = c("black", "red"), name = "outliers",
+                     labels = c("not outlier", "outlier")) +
+  geom_smooth(se= F) +
+  geom_smooth(aes(y = abs(CWRES)), se = F) +
+  geom_smooth(aes(y = -abs(CWRES)), se = F) +
+  theme_bw()
+```
+
+```{r}
+gg_res_time <- function(df, .time, .res, .threshold = 2.5, .ct = TRUE) {
+  .time <- rlang::enexpr(.time)
+  .res <- rlang::enexpr(.res)
+  ggplot_output <- rlang::eval_tidy(
+    rlang::quo(
+    df %>%
+    mutate(HIGHRES__ = factor(ifelse(abs(!!.res) > .threshold, 1, 0))) %>%
+    ggplot(aes(x = !!.time, y = !!.res)) +
+    geom_point(aes(color = HIGHRES__)) +
+    scale_color_manual(values = c("black", "red"), name = "outliers",
+                       labels = c("not outlier", "outlier")) +
+    geom_smooth(aes(y = abs(!!.res)), se = F) +
+    geom_smooth(aes(y = -abs(!!.res)), se = F) +
+    theme_bw()
+  ))
+  if (!.ct) {
+    return(ggplot_output)
+  }
+  
+  return(ggplot_output +
+    geom_smooth(se= F) 
+    )
+}
+
+gg_res_time(resid, TAD, CWRES, 1.5, FALSE)
+```
+
 2) Plot WRES vs time after dose (TAD)
+
+```{r}
+gg_res_time(resid, TAD, WRES)
+```
 
 ```{r}
 devtools::session_info()
