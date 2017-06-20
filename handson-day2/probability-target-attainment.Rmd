@@ -3,7 +3,6 @@ title: "Probability of Target Attainment"
 output: html_document
 ---
 
-
 You have been tasked with providing a labeling recommendation for a new compound - `pageimab`.
 
 A population PK model has been developed and written in mrgsolve based on pharmacokinetics 
@@ -28,7 +27,69 @@ library(mrgsolve)
 pmod <- mread_cache("pageimab", "../models/")
 ```
 
+```{r}
+see(pmod)
+```
 
+## initial exploration
+```{r}
+
+all_sims <- map_df(c(250, 500, 1000, 1250), function(.amt) {
+  ids <- data_frame(
+  ID = 1:5000,
+  time = 0,
+  amt = .amt,
+  ii = 12, 
+  ss = 1, 
+  evid =1, 
+  cmt = 1
+  ) %>% mutate(
+  WT = runif(n(), 40, 140)
+  )
+  pmod %>% 
+    #ev(amt = 500, ii = 12, ss = 1) %>%
+    data_set(ids) %>%
+    mrgsim() %>% as_data_frame %>%
+    filter(time == 12) %>% 
+    mutate(dose = .amt)
+  })
+
+```
+
+```{r}
+ ids <- data_frame(
+  ID = 1:5000,
+  time = 0,
+  ii = 12, 
+  ss = 1, 
+  evid =1, 
+  cmt = 1
+  ) %>% mutate(
+  WT = runif(n(), 40, 140),
+  amt = ifelse(WT > 90, 1250, 750),
+  dose = amt
+  )
+  all_sims <-  pmod %>% 
+    #ev(amt = 500, ii = 12, ss = 1) %>%
+    data_set(ids) %>%
+    carry.out(dose) %>%
+    mrgsim() %>% as_data_frame %>%
+    filter(time == 12) 
+```
+
+```{r}
+head(all_sims)
+```
+
+```{r}
+all_sims %>% select(ID, dose, CP) %>%
+  mutate(bin = set_bins(CP, c(8, 25))) %>%
+  group_by(dose) %>%
+  mutate(totalinds = n()) %>%
+  group_by(dose, bin, totalinds) %>%
+  count(dose, bin) %>%
+  mutate(prop = n/totalinds)
+```
 
 
 
